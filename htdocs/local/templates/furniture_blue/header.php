@@ -25,7 +25,7 @@ IncludeTemplateLangFile(__FILE__);
 		
 	</style>
 	<![endif]-->
-    <meta property="specialdate" content="<?$APPLICATION->ShowProperty("specialdate",100); ?>">
+    <meta property="specialdate" content="<? $APPLICATION->ShowProperty("specialdate", 100); ?>">
     <title><? $APPLICATION->ShowTitle() ?></title>
 </head>
 <body>
