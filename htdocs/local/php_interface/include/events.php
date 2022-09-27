@@ -7,6 +7,7 @@ define("LIMIT_VIEWS", 2);
 // регистрируем обработчик
 AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", array("Task", "task_function"));
 
+
 class Task {
     // создаем обработчик события "OnBeforeIBlockElementUpdate"
     function task_function(&$arFields) {
