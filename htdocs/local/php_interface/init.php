@@ -5,3 +5,7 @@ if (file_exists($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/events.p
 if (file_exists($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/event404.php")) {
     require_once($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/event404.php");
 }
+
+if (file_exists($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/eventLetter.php")) {
+    require_once($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/eventLetter.php");
+}
