@@ -14,6 +14,10 @@ if (file_exists($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/eventMen
     require_once($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/eventMenuBuilder.php");
 }
 
+if (file_exists($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/toolsSEOEvent.php")) {
+    require_once($_SERVER["DOCUMENT_ROOT"]."/local/php_interface/include/toolsSEOEvent.php");
+}
+
 
 
 
