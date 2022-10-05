@@ -6,7 +6,11 @@ use Bitrix\Main\Loader,
 
 class MySimpleCatalog extends CBitrixComponent {
 
+    protected bool $cFilter = false;
+
     public function onPrepareComponentParams($arParams) {
+
+
         if (!isset($arParams["CACHE_TIME"])) {
             $arParams["CACHE_TIME"] = 36000000;
         }
@@ -15,6 +19,10 @@ class MySimpleCatalog extends CBitrixComponent {
         }
         if (!isset($arParams["NEWS_IBLOCK_ID"])) {
             $arParams["NEWS_IBLOCK_ID"] = 0;
+        }
+        
+        if (isset($_REQUEST["F"])) {
+            $this->cFilter = true;
         }
 
         return $arParams;
@@ -96,16 +104,28 @@ class MySimpleCatalog extends CBitrixComponent {
     }
 
     function getProducts($arSectionsID, $arSections, &$arNews) {
+
+        $arFilterElements = array(
+            "IBLOCK_ID" => $this->arParams["PRODUCTS_IBLOCK_ID"],
+            "ACTIVE" => "Y",
+            "SECTION_ID" => $arSectionsID
+        );
+
+        if ($this->cFilter) {
+            $arFilterElements[] = array(
+                array("<=PROPERTY_PRICE" => 1700, "PROPERTY_MATERIAL" => "дерево, ткань"),
+                array("<=PROPERTY_PRICE" => 1500, "PROPERTY_MATERIAL" => "металл, пластик"),
+                "LOGIC" => "OR"
+            );
+            $this->abortResultCache();
+        }
+
         $obProduct = CIBlockElement::GetList(
             array(
                 "NAME" => "asc",
                 "SORT" => "asc"
             ),
-            array(
-                "IBLOCK_ID" => $this->arParams["PRODUCTS_IBLOCK_ID"],
-                "ACTIVE" => "Y",
-                "SECTION_ID" => $arSectionsID
-            ),
+            $arFilterElements,
             false,
             false,
             //ограничение вывода полей элементов
@@ -119,6 +139,7 @@ class MySimpleCatalog extends CBitrixComponent {
                 "PROPERTY_MATERIAL",
                 "PROPERTY_PRICE"
             )
+
         );
 
         $this->arResult["PRODUCT_CNT"] = 0;
@@ -146,7 +167,7 @@ class MySimpleCatalog extends CBitrixComponent {
     }
 
     function render() {
-        if ($this->startResultCache()) {
+        if ($this->startResultCache(false, array($this->cFilter))) {
             $arNews = $this->getNews()["AR_NEWS"];
             $arNewsId = $this->getNews()["AR_NEWS_ID"];
 
