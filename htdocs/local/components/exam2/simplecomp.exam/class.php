@@ -7,15 +7,16 @@ use Bitrix\Main\Loader,
 class MySimpleCatalog extends CBitrixComponent {
 
     public function onPrepareComponentParams($arParams) {
-        if (isset($arParams["CACHE_TIME"])) {
+        if (!isset($arParams["CACHE_TIME"])) {
             $arParams["CACHE_TIME"] = 36000000;
         }
-        if (isset($arParams["PRODUCTS_IBLOCK_ID"])) {
-            $arParams["CACHE_TIME"] = 0;
+        if (!isset($arParams["PRODUCTS_IBLOCK_ID"])) {
+            $arParams["PRODUCTS_IBLOCK_ID"] = 0;
         }
-        if (isset($arParams["NEWS_IBLOCK_ID"])) {
-            $arParams["CACHE_TIME"] = 0;
+        if (!isset($arParams["NEWS_IBLOCK_ID"])) {
+            $arParams["NEWS_IBLOCK_ID"] = 0;
         }
+
         return $arParams;
     }
 
@@ -24,6 +25,7 @@ class MySimpleCatalog extends CBitrixComponent {
             ShowError(GetMessage("SIMPLECOMP_EXAM2_IBLOCK_MODULE_NONE"));
         }
     }
+
     public function executeComponent() {
         global $APPLICATION;
         $this->checkErrorInModule();
@@ -95,7 +97,10 @@ class MySimpleCatalog extends CBitrixComponent {
 
     function getProducts($arSectionsID, $arSections, &$arNews) {
         $obProduct = CIBlockElement::GetList(
-            array(),
+            array(
+                "NAME" => "asc",
+                "SORT" => "asc"
+            ),
             array(
                 "IBLOCK_ID" => $this->arParams["PRODUCTS_IBLOCK_ID"],
                 "ACTIVE" => "Y",
@@ -108,6 +113,7 @@ class MySimpleCatalog extends CBitrixComponent {
                 "NAME",
                 "IBLOCK_SECTION_ID",
                 "ID",
+                "CODE",
                 "IBLOCK_ID",
                 "PROPERTY_ARTNUMBER",
                 "PROPERTY_MATERIAL",
@@ -118,6 +124,19 @@ class MySimpleCatalog extends CBitrixComponent {
         $this->arResult["PRODUCT_CNT"] = 0;
 
         while ($arProduct = $obProduct->Fetch()) {
+            //ссылка на детальный просмотр
+            $arProduct["DETAIL_PAGE_URL"] = str_replace(
+                array(
+                    "#SECTION_ID#",
+                    "#ELEMENT_CODE#"
+                ),
+                array(
+                    $arProduct ["IBLOCK_SECTION_ID"],
+                    $arProduct ["CODE"],
+                ),
+                $this->arParams["TEMPLATE_DETAIL_URL"]
+            );
+
             $this->arResult["PRODUCT_CNT"]++;
             foreach ($arSections[$arProduct["IBLOCK_SECTION_ID"]][$this->arParams["PRODUCTS_IBLOCK_ID_PROPERTY"]] as $newsId) {
                 $arNews[$newsId]["PRODUCTS"][] = $arProduct;
@@ -136,7 +155,7 @@ class MySimpleCatalog extends CBitrixComponent {
 
             $this->getProducts($arSectionId, $arSection, $arNews);
 
-            foreach ($arSection  as $i) {
+            foreach ($arSection as $i) {
                 foreach ($i[$this->arParams["PRODUCTS_IBLOCK_ID_PROPERTY"]] as $val) {
                     $arNews[$val]["SECTIONS"] [] = $i["NAME"];
                 }
