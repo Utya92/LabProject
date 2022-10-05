@@ -20,7 +20,7 @@ class MySimpleCatalog extends CBitrixComponent {
         if (!isset($arParams["NEWS_IBLOCK_ID"])) {
             $arParams["NEWS_IBLOCK_ID"] = 0;
         }
-        
+
         if (isset($_REQUEST["F"])) {
             $this->cFilter = true;
         }
@@ -145,6 +145,26 @@ class MySimpleCatalog extends CBitrixComponent {
         $this->arResult["PRODUCT_CNT"] = 0;
 
         while ($arProduct = $obProduct->Fetch()) {
+
+            //передаём индетификатор инфоблока каждого элемента!!!
+            $arButtons = CIBlock::GetPanelButtons(
+                $this->arParams["PRODUCTS_IBLOCK_ID"],
+                $arProduct["ID"],
+                0,
+                array("SECTION_BUTTONS" => false, "SESSID" => false),
+
+            );
+//            echo "<pre>";
+//            print_r($arButtons);
+//            echo "<pre>";
+
+            $arProduct["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
+            $arProduct["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
+
+            $this->arResult["ADD_LINK"] = $arButtons["edit"]["add_element"]["ACTION_URL"];
+            $this->arResult["IBLOCK_ID"] = $this->arParams["PRODUCTS_IBLOCK_ID"];
+
+
             //ссылка на детальный просмотр
             $arProduct["DETAIL_PAGE_URL"] = str_replace(
                 array(
@@ -181,9 +201,10 @@ class MySimpleCatalog extends CBitrixComponent {
                     $arNews[$val]["SECTIONS"] [] = $i["NAME"];
                 }
             }
-
             $this->arResult["NEWS"] = $arNews;
-//            var_dump($arNews) ;
+//            echo "<pre>";
+//            print_r($this->arResult["NEWS"]);
+//            echo "<pre>";
         } else {
             $this->abortResultCache();
         }
