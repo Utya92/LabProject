@@ -233,9 +233,9 @@ class MySimpleCatalog extends CBitrixComponent {
 //            echo "<pre>";
 //            print_r($this->arResult["NEWS"]);
 //            echo "<pre>";
+            $this->includeComponentTemplate();
         } else {
             $this->abortResultCache();
         }
-        $this->includeComponentTemplate();
     }
 }
