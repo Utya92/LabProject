@@ -9,7 +9,7 @@ class MySimpleCatalog extends CBitrixComponent {
     protected bool $cFilter = false;
 
     public function onPrepareComponentParams($arParams) {
-
+        global $USER;
 
         if (!isset($arParams["CACHE_TIME"])) {
             $arParams["CACHE_TIME"] = 36000000;
@@ -23,6 +23,20 @@ class MySimpleCatalog extends CBitrixComponent {
 
         if (isset($_REQUEST["F"])) {
             $this->cFilter = true;
+        }
+
+        if ($USER->IsAuthorized()) {
+            $arButtons = CIBlock::GetPanelButtons($arParams["PRODUCTS_IBLOCK_ID"]);
+            //добавляем массив новых кнопок к кнопкам отображаемых в области компонента в режиме редактирования
+            $this->AddIncludeAreaIcons(
+                array(
+                    array("ID" => "linklb",
+                        "TITLE" => GetMessage("IB_IN_ADMIN"),
+                        "URL" => $arButtons["submenu"]["element_list"]["ACTION_URL"],
+                        "IN_PARAMS_MENU" => true,// включение визуального отображения кнопки
+                    )
+                )
+            );
         }
 
         return $arParams;
