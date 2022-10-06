@@ -23,6 +23,12 @@ $arComponentParameters = array(
             "TYPE" => "STRING",
             "DEFAULT"=>"catalog_exam/#SECTION_ID#/#ELEMENT_CODE#"
         ),
+        "PAGE_NAVIGATION_EL" => array(
+            "NAME" => GetMessage("PAGE_NAVIGATION_EL"),
+            "PARENT" => "BASE",
+            "TYPE" => "STRING",
+            "DEFAULT"=>2
+        ),
         "CACHE_TIME" => array(
             "DEFAULT" => 36000000
         ),

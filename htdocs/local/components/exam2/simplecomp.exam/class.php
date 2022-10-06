@@ -9,8 +9,6 @@ class MySimpleCatalog extends CBitrixComponent {
     protected bool $cFilter = false;
 
     public function onPrepareComponentParams($arParams) {
-        global $USER;
-
         if (!isset($arParams["CACHE_TIME"])) {
             $arParams["CACHE_TIME"] = 36000000;
         }
@@ -19,24 +17,6 @@ class MySimpleCatalog extends CBitrixComponent {
         }
         if (!isset($arParams["NEWS_IBLOCK_ID"])) {
             $arParams["NEWS_IBLOCK_ID"] = 0;
-        }
-
-        if (isset($_REQUEST["F"])) {
-            $this->cFilter = true;
-        }
-
-        if ($USER->IsAuthorized()) {
-            $arButtons = CIBlock::GetPanelButtons($arParams["PRODUCTS_IBLOCK_ID"]);
-            //добавляем массив новых кнопок к кнопкам отображаемых в области компонента в режиме редактирования
-            $this->AddIncludeAreaIcons(
-                array(
-                    array("ID" => "linklb",
-                        "TITLE" => GetMessage("IB_IN_ADMIN"),
-                        "URL" => $arButtons["submenu"]["element_list"]["ACTION_URL"],
-                        "IN_PARAMS_MENU" => true,// включение визуального отображения кнопки
-                    )
-                )
-            );
         }
 
         return $arParams;
@@ -51,10 +31,29 @@ class MySimpleCatalog extends CBitrixComponent {
     public function executeComponent() {
         global $APPLICATION;
         $this->checkErrorInModule();
+        $this->addSubMenuButtons($this->arParams["PRODUCTS_IBLOCK_ID"]);
         $this->render();
         $APPLICATION->SetTitle(GetMessage("COUNT") . $this->arResult["PRODUCT_CNT"]);
     }
 
+
+    function addSubMenuButtons($iblockId) {
+        global $USER;
+        if ($USER->IsAuthorized()) {
+            $arButtons = CIBlock::GetPanelButtons($iblockId);
+            //добавляем массив новых кнопок к кнопкам отображаемых в области компонента в режиме редактирования
+            $this->AddIncludeAreaIcons(
+                array(
+                    array(
+                        "ID" => "linklb",
+                        "TITLE" => GetMessage("IB_IN_ADMIN"),
+                        "URL" => $arButtons["submenu"]["element_list"]["ACTION_URL"],
+                        "IN_PARAMS_MENU" => true,// включение визуального отображения кнопки
+                    )
+                )
+            );
+        }
+    }
 
     function getNews(): array {
         $arNews = array();
@@ -68,7 +67,10 @@ class MySimpleCatalog extends CBitrixComponent {
                 "ACTIVE" => "Y"
             ),
             false,
-            false,
+            array(
+                "nPageSize" => $this->arParams["PAGE_NAVIGATION_EL"],
+                "bShowAll" => true,
+            ),
             //ограничение вывода полей элементов
             array(
                 "NAME",
@@ -76,6 +78,9 @@ class MySimpleCatalog extends CBitrixComponent {
                 "ID"
             )
         );
+
+        $this->arResult["NAV_STRING"] = $obNews->GetPageNavString(GetMessage("PAGE_TITLE"));
+
         while ($element = $obNews->Fetch()) {
             $arNewsId[] = $element["ID"];
             $arNews[$element["ID"]] = $element;
@@ -116,7 +121,7 @@ class MySimpleCatalog extends CBitrixComponent {
                 "NAME",
                 "IBLOCK_ID",
                 "ID",
-                $this->arParams["PRODUCTS_IBLOCK_ID_PROPERTY"]
+                $this->arParams["PRODUCTS_IBLOCK_ID_PROPERTY"],
             ),
             false
         );
@@ -173,7 +178,6 @@ class MySimpleCatalog extends CBitrixComponent {
         $this->arResult["PRODUCT_CNT"] = 0;
 
         while ($arProduct = $obProduct->Fetch()) {
-
             //передаём индетификатор инфоблока каждого элемента!!!
             $arButtons = CIBlock::GetPanelButtons(
                 $this->arParams["PRODUCTS_IBLOCK_ID"],
@@ -206,14 +210,25 @@ class MySimpleCatalog extends CBitrixComponent {
 
             $this->arResult["PRODUCT_CNT"]++;
             foreach ($arSections[$arProduct["IBLOCK_SECTION_ID"]][$this->arParams["PRODUCTS_IBLOCK_ID_PROPERTY"]] as $newsId) {
-                $arNews[$newsId]["PRODUCTS"][] = $arProduct;
+
+                if (isset($arNews[$newsId])) {
+                    $arNews[$newsId]["PRODUCTS"][] = $arProduct;
+                }
+
             }
         }
         $this->setResultCacheKeys(array("PRODUCT_CNT"));
     }
 
+
     function render() {
-        if ($this->startResultCache(false, array($this->cFilter))) {
+        $filter = $this->request->getQuery("F");
+        if (isset($filter)) {
+            $this->cFilter = true;
+        }
+        $arNavigation = CDBResult::GetNavParams();
+
+        if ($this->startResultCache(false, array($this->cFilter, $arNavigation))) {
             $arNews = $this->getNews()["AR_NEWS"];
             $arNewsId = $this->getNews()["AR_NEWS_ID"];
 
@@ -222,9 +237,11 @@ class MySimpleCatalog extends CBitrixComponent {
 
             $this->getProducts($arSectionId, $arSection, $arNews);
 
-            foreach ($arSection as $i) {
-                foreach ($i[$this->arParams["PRODUCTS_IBLOCK_ID_PROPERTY"]] as $val) {
-                    $arNews[$val]["SECTIONS"] [] = $i["NAME"];
+            foreach ($arSection as $value) {
+                foreach ($value[$this->arParams["PRODUCTS_IBLOCK_ID_PROPERTY"]] as $item) {
+                    if (isset($arNews[$item])) {
+                        $arNews[$item]["SECTIONS"] [] = $value["NAME"];
+                    }
                 }
             }
 
@@ -233,9 +250,9 @@ class MySimpleCatalog extends CBitrixComponent {
 //            echo "<pre>";
 //            print_r($this->arResult["NEWS"]);
 //            echo "<pre>";
+            $this->includeComponentTemplate();
         } else {
             $this->abortResultCache();
         }
-        $this->includeComponentTemplate();
     }
 }
