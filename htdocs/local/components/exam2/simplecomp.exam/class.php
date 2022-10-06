@@ -85,6 +85,20 @@ class MySimpleCatalog extends CBitrixComponent {
         return $output;
     }
 
+    function getResultModifierPrice($arr) {
+        $arPrice = array();
+        foreach ($arr["NEWS"] as $news) {
+            foreach ($news["PRODUCTS"] as $arProduct) {
+                if ($arProduct["PROPERTY_PRICE_VALUE"] !== null) {
+                    $arPrice[] = $arProduct["PROPERTY_PRICE_VALUE"];
+                }
+            }
+        }
+        $this->arResult["MIN_PRICE"] = min($arPrice);
+        $this->arResult["MAX_PRICE"] = max($arPrice);
+        $this->setResultCacheKeys(array("MIN_PRICE", "MAX_PRICE"));
+    }
+
 
     function getSections($newsId): array {
         $arSections = array();
@@ -171,13 +185,11 @@ class MySimpleCatalog extends CBitrixComponent {
 //            echo "<pre>";
 //            print_r($arButtons);
 //            echo "<pre>";
-
             $arProduct["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
             $arProduct["DELETE_LINK"] = $arButtons["edit"]["delete_element"]["ACTION_URL"];
 
             $this->arResult["ADD_LINK"] = $arButtons["edit"]["add_element"]["ACTION_URL"];
             $this->arResult["IBLOCK_ID"] = $this->arParams["PRODUCTS_IBLOCK_ID"];
-
 
             //ссылка на детальный просмотр
             $arProduct["DETAIL_PAGE_URL"] = str_replace(
@@ -215,7 +227,9 @@ class MySimpleCatalog extends CBitrixComponent {
                     $arNews[$val]["SECTIONS"] [] = $i["NAME"];
                 }
             }
+
             $this->arResult["NEWS"] = $arNews;
+            $this->getResultModifierPrice($this->arResult);
 //            echo "<pre>";
 //            print_r($this->arResult["NEWS"]);
 //            echo "<pre>";
