@@ -222,13 +222,22 @@ class MySimpleCatalog extends CBitrixComponent {
 
 
     function render() {
+
+        //фильтр
         $filter = $this->request->getQuery("F");
         if (isset($filter)) {
             $this->cFilter = true;
         }
+        //кнопки навигации
         $arNavigation = CDBResult::GetNavParams();
 
-        if ($this->startResultCache(false, array($this->cFilter, $arNavigation))) {
+        //для функции кеширования
+        global $CACHE_MANAGER;
+
+
+        if ($this->startResultCache(false, array($this->cFilter, $arNavigation),"/tagged_getlist")) {
+            //отслеживание изменений в инфоблоке услуг
+            $CACHE_MANAGER->RegisterTag("iblock_id_3");
             $arNews = $this->getNews()["AR_NEWS"];
             $arNewsId = $this->getNews()["AR_NEWS_ID"];
 
