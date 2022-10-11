@@ -2,30 +2,16 @@
 <?
 IncludeTemplateLangFile(__FILE__);
 ?>
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <? $APPLICATION->SetAdditionalCSS(SITE_TEMPLATE_PATH . "/common.css") ?>
+    <? $APPLICATION->SetAdditionalCSS(SITE_TEMPLATE_PATH . "/colors.css") ?>
     <? $APPLICATION->ShowHead(); ?>
-    <link href="<?= SITE_TEMPLATE_PATH ?>/common.css" type="text/css" rel="stylesheet"/>
-    <link href="<?= SITE_TEMPLATE_PATH ?>/colors.css" type="text/css" rel="stylesheet"/>
-
-    <!--[if lte IE 6]>
-	<style type="text/css">
-
-		#banner-overlay {
-			background-image: none;
-			filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?= SITE_TEMPLATE_PATH ?>images/overlay.png', sizingMethod = 'crop');
-		}
-
-		div.product-overlay {
-			background-image: none;
-			filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?= SITE_TEMPLATE_PATH ?>images/product-overlay.png', sizingMethod = 'crop');
-		}
-
-	</style>
-	<![endif]-->
-    <meta property="specialdate" content="<? $APPLICATION->ShowProperty("specialdate", 100); ?>">
+    <meta property="specialcount" content="<? $APPLICATION->ShowProperty("specialcount") ?>">
+    ,
     <title><? $APPLICATION->ShowTitle() ?></title>
 </head>
 <body>
@@ -35,13 +21,7 @@ IncludeTemplateLangFile(__FILE__);
 
         <table id="logo">
             <tr>
-                <td><a href="<?= SITE_DIR ?>" title="<?= GetMessage('CFT_MAIN') ?>"><?
-                        $APPLICATION->IncludeFile(
-                            SITE_DIR . "include/company_name.php",
-                            array(),
-                            array("MODE" => "html")
-                        );
-                        ?></a></td>
+                <td><a href="<?= SITE_DIR ?>" title="<?= GetMessage('CFT_MAIN') ?>"></a></td>
             </tr>
         </table>
 
@@ -74,17 +54,23 @@ IncludeTemplateLangFile(__FILE__);
     </div>
 
     <div id="banner">
-        <table id="banner-layout">
+        <table id="banner-layout" cellspacing="0">
             <tr>
                 <td id="banner-image">
-                    <div><img src="<?= SITE_TEMPLATE_PATH ?>/images/head.jpg" alt=""/></div>
+                    <div><img src="<?= SITE_TEMPLATE_PATH ?>/images/head.jpg"/></div>
                 </td>
                 <td id="banner-slogan">
                     <?
-                    $APPLICATION->IncludeFile(
-                        SITE_DIR . "include/motto.php",
-                        array(),
-                        array("MODE" => "html")
+                    $APPLICATION->IncludeComponent(
+                        "bitrix:main.include",
+                        ".default",
+                        array(
+                            "COMPONENT_TEMPLATE" => ".default",
+                            "AREA_FILE_SHOW" => "file",
+                            "PATH" => "/ex2/site2/include/motto.php",
+                            "EDIT_TEMPLATE" => ""
+                        ),
+                        false
                     );
                     ?>
                 </td>
@@ -96,34 +82,6 @@ IncludeTemplateLangFile(__FILE__);
     <div id="content">
 
         <div id="sidebar">
-            <? $APPLICATION->IncludeComponent("bitrix:menu", "left", array(
-                "ROOT_MENU_TYPE" => "left",
-                "MENU_CACHE_TYPE" => "A",
-                "MENU_CACHE_TIME" => "36000000",
-                "MENU_CACHE_USE_GROUPS" => "Y",
-                "MENU_CACHE_GET_VARS" => array(),
-                "MAX_LEVEL" => "1",
-                "CHILD_MENU_TYPE" => "left",
-                "USE_EXT" => "Y",
-                "ALLOW_MULTI_SELECT" => "N"
-            ),
-                false,
-                array(
-                    "ACTIVE_COMPONENT" => "Y"
-                )
-            ); ?>
-            <div class="content-block">
-                <div class="content-block-inner">
-                    <h3><?= GetMessage('CFT_NEWS') ?></h3>
-                    <?
-                    $APPLICATION->IncludeFile(
-                        SITE_DIR . "include/news.php",
-                        array(),
-                        array("MODE" => "html")
-                    );
-                    ?>
-                </div>
-            </div>
             <div class="content-block">
                 <div class="content-block-inner">
                     <h3><?= GetMessage('CFT_LANG_CANGE') ?></h3>
@@ -139,9 +97,10 @@ IncludeTemplateLangFile(__FILE__);
                     ?>
                 </div>
             </div>
+
+
             <div class="content-block">
                 <div class="content-block-inner">
-
                     <?
                     $APPLICATION->IncludeComponent("bitrix:search.form", "flat", array(
                         "PAGE" => "#SITE_DIR#search/",
@@ -151,22 +110,8 @@ IncludeTemplateLangFile(__FILE__);
                     ?>
                 </div>
             </div>
-            <?php $APPLICATION->ShowViewContent("price"); ?>
 
-            <div class="information-block">
-                <div class="top"></div>
-                <div class="information-block-inner">
-                    <h3><?= GetMessage('CFT_FEATURED') ?></h3>
-                    <?
-                    $APPLICATION->IncludeFile(
-                        SITE_DIR . "include/random.php",
-                        array(),
-                        array("MODE" => "html")
-                    );
-                    ?>
-                </div>
-                <div class="bottom"></div>
-            </div>
+
         </div>
 
         <div id="workarea">
