@@ -1,5 +1,20 @@
 <? if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die(); ?>
+<?php CJSCore::Init(array("jquery")); // подключение jquery из ядра битрикса?>
 <div class="news-detail">
+    <input type="hidden" name="news_id" id="news-id" value="<?= $arResult["ID"]; ?>">
+    <?
+    if ($arParams["REPORT_AJAX"] == "Y") { ?>
+<!--        <input type="submit" value="жалоба" id="claim_button">-->
+        <a href="#" id="ajaxRef">Жалоба(ajax)</a>
+        <span id="ajax-report-text"></span>
+    <? } else { ?>
+        <b>
+            <a href="<? $APPLICATION->GetCurPage(); ?>?ID=<?= $arResult["ID"]; ?>">жалоба(GET)!!!</a>
+            <span id="ajax-report-text"></span>
+        </b>
+    <?	} ?>
+<!-- __________________________________________________________________________________________________________________   -->
+
     <? if ($arParams["DISPLAY_PICTURE"] != "N" && is_array($arResult["DETAIL_PICTURE"])): ?>
         <img class="detail_picture" src="<?= $arResult["DETAIL_PICTURE"]["SRC"] ?>"
              width="<?= $arResult["DETAIL_PICTURE"]["WIDTH"] ?>" height="<?= $arResult["DETAIL_PICTURE"]["HEIGHT"] ?>"
@@ -28,18 +43,64 @@
         <div style="clear:both"></div>
         <br/>
         <? foreach ($arResult["FIELDS"] as $code => $value): ?>
-            <?= GetMessage("IBLOCK_FIELD_" . $code) ?>:&nbsp;<?= $value; ?>
+            <?= GetMessage("IBLOCK_FIELD_" . $code) ?><?= $value; ?>
             <br/>
         <? endforeach; ?>
         <? foreach ($arResult["DISPLAY_PROPERTIES"] as $pid => $arProperty): ?>
-
-            <?= $arProperty["NAME"] ?>:&nbsp;
-            <? if (is_array($arProperty["DISPLAY_VALUE"])): ?>
-                <?= implode("&nbsp;/&nbsp;", $arProperty["DISPLAY_VALUE"]); ?>
-            <? else: ?>
-                <?= $arProperty["DISPLAY_VALUE"]; ?>
-            <? endif ?>
+            <?= $arProperty["NAME"] ?>
+        <? if (is_array($arProperty["DISPLAY_VALUE"])): ?>
+            <?= implode("&nbsp;/&nbsp;", $arProperty["DISPLAY_VALUE"]); ?>
+        <? else: ?>
+            <?= $arProperty["DISPLAY_VALUE"]; ?>
+        <? endif ?>
             <br/>
         <? endforeach; ?>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

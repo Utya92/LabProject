@@ -26,6 +26,11 @@ $arTemplateParameters = array(
         "NAME" => GetMessage("ID_CANONICAL"),
         "TYPE" => "STRING",
     ),
+    "REPORT_AJAX" => array(
+        "NAME" => GetMessage("REPORT_AJAX"),
+        "TYPE" => "CHECKBOX",
+        "DEFAULT" => "Y",
+    ),
     "USE_SHARE" => array(
         "NAME" => GetMessage("T_IBLOCK_DESC_NEWS_USE_SHARE"),
         "TYPE" => "CHECKBOX",
